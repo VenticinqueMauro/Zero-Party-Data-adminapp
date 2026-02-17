@@ -1,4 +1,9 @@
-import type { ClientsConfig, ServiceContext, RecorderState } from '@vtex/api'
+import type {
+  ClientsConfig,
+  ServiceContext,
+  RecorderState,
+  ParamsContext,
+} from '@vtex/api'
 import { Service } from '@vtex/api'
 
 import { Clients } from './clients'
@@ -31,10 +36,10 @@ const clients: ClientsConfig<Clients> = {
 }
 
 declare global {
-  type Context = ServiceContext<Clients, RecorderState>
+  type Context = ServiceContext<Clients>
 }
 
-export default new Service({
+const service = new Service<Clients, RecorderState, ParamsContext>({
   clients,
   graphql: {
     resolvers: {
@@ -56,3 +61,5 @@ export default new Service({
     },
   },
 })
+
+export default service

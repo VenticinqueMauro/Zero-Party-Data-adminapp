@@ -2,10 +2,10 @@
   "name": "zpd-survey-manager-node",
   "version": "0.1.0",
   "dependencies": {
-    "@vtex/api": "^6.45.0"
+    "@vtex/api": "^7.0.0"
   },
   "devDependencies": {
-    "@types/node": "^18.0.0",
-    "typescript": "^4.9.0"
+    "@types/node": "^20.0.0",
+    "typescript": "5.5.3"
   }
 }

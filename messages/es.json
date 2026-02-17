@@ -1,15 +1,13 @@
 {
   "admin/zpd.navigation.title": "Zero-Party Data",
-  "admin/zpd.navigation.surveys": "Encuestas",
+  "admin/zpd.navigation.surveys": "Encuestas Post-Compra",
   "admin/zpd.navigation.search.kws": "encuestas, zero party data, surveys",
   "admin/zpd.navigation.surveys.search.kws": "encuestas, surveys, atribucion",
-
   "admin/zpd.surveys.title": "Encuestas Post-Compra",
   "admin/zpd.surveys.subtitle": "Gestiona las encuestas de Zero-Party Data",
   "admin/zpd.surveys.new": "Nueva Encuesta",
   "admin/zpd.surveys.empty": "No hay encuestas creadas",
   "admin/zpd.surveys.empty.description": "Crea tu primera encuesta para empezar a capturar datos de atribucion",
-
   "admin/zpd.survey.question": "Pregunta",
   "admin/zpd.survey.question.placeholder": "Ej: Como nos conociste?",
   "admin/zpd.survey.options": "Opciones de respuesta",
@@ -21,7 +19,6 @@
   "admin/zpd.survey.status.inactive": "Inactiva",
   "admin/zpd.survey.responses": "Respuestas",
   "admin/zpd.survey.created": "Creada",
-
   "admin/zpd.form.save": "Guardar",
   "admin/zpd.form.cancel": "Cancelar",
   "admin/zpd.form.delete": "Eliminar",
@@ -29,7 +26,6 @@
   "admin/zpd.form.activate": "Activar",
   "admin/zpd.form.deactivate": "Desactivar",
   "admin/zpd.form.viewResponses": "Ver Respuestas",
-
   "admin/zpd.responses.title": "Respuestas",
   "admin/zpd.responses.email": "Email",
   "admin/zpd.responses.option": "Opcion",
@@ -37,7 +33,6 @@
   "admin/zpd.responses.orderId": "Pedido",
   "admin/zpd.responses.filter.dateFrom": "Desde",
   "admin/zpd.responses.filter.dateTo": "Hasta",
-
   "admin/zpd.dashboard.title": "Dashboard",
   "admin/zpd.dashboard.total": "Total de respuestas",
   "admin/zpd.dashboard.distribution": "Distribucion"

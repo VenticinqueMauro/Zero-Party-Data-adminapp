@@ -1,42 +1,65 @@
 type Query {
-  """Lista todas las encuestas, ordenadas por fecha de creacion descendente"""
-  getSurveys: [Survey!]!
+  """
+  Lista todas las encuestas, ordenadas por fecha de creacion descendente
+  """
+  getSurveys: [Survey!]! @auth(scope: PUBLIC)
 
-  """Obtiene una encuesta por su ID"""
-  getSurvey(id: ID!): Survey
+  """
+  Obtiene una encuesta por su ID
+  """
+  getSurvey(id: ID!): Survey @auth(scope: PUBLIC)
 
-  """Obtiene la encuesta activa actualmente (para storefront)"""
-  getActiveSurvey: Survey
+  """
+  Obtiene la encuesta activa actualmente (para storefront)
+  """
+  getActiveSurvey: Survey @auth(scope: PUBLIC)
 
-  """Lista respuestas de una encuesta con paginacion y filtros"""
+  """
+  Lista respuestas de una encuesta con paginacion y filtros
+  """
   getResponses(
     surveyId: String!
     page: Int
     pageSize: Int
     dateFrom: String
     dateTo: String
-  ): ResponseList!
+  ): ResponseList! @auth(scope: PUBLIC)
 
-  """Dashboard con distribucion de respuestas por opcion"""
-  getSurveyDashboard(surveyId: String!): SurveyDashboard!
+  """
+  Dashboard con distribucion de respuestas por opcion
+  """
+  getSurveyDashboard(surveyId: String!): SurveyDashboard! @auth(scope: PUBLIC)
 
-  """Verifica si un pedido ya respondio una encuesta (RN-06)"""
+  """
+  Verifica si un pedido ya respondio una encuesta (RN-06)
+  """
   hasOrderResponded(orderId: String!, surveyId: String!): Boolean!
+    @auth(scope: PUBLIC)
 }
 
 type Mutation {
-  """Crea una nueva encuesta"""
-  createSurvey(input: SurveyInput!): Survey!
+  """
+  Crea una nueva encuesta
+  """
+  createSurvey(input: SurveyInput!): Survey! @auth(scope: PUBLIC)
 
-  """Actualiza una encuesta existente"""
-  updateSurvey(id: ID!, input: SurveyInput!): Survey!
+  """
+  Actualiza una encuesta existente
+  """
+  updateSurvey(id: ID!, input: SurveyInput!): Survey! @auth(scope: PUBLIC)
 
-  """Elimina una encuesta y sus respuestas asociadas"""
-  deleteSurvey(id: ID!): Boolean!
+  """
+  Elimina una encuesta y sus respuestas asociadas
+  """
+  deleteSurvey(id: ID!): Boolean! @auth(scope: PUBLIC)
 
-  """Activa/desactiva una encuesta (desactiva automaticamente la anterior)"""
-  toggleSurveyStatus(id: ID!, isActive: Boolean!): Survey!
+  """
+  Activa/desactiva una encuesta (desactiva automaticamente la anterior)
+  """
+  toggleSurveyStatus(id: ID!, isActive: Boolean!): Survey! @auth(scope: PUBLIC)
 
-  """Registra una respuesta desde el storefront"""
-  submitResponse(input: ResponseInput!): SurveyResponse!
+  """
+  Registra una respuesta desde el storefront
+  """
+  submitResponse(input: ResponseInput!): SurveyResponse! @auth(scope: PUBLIC)
 }
