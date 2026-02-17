@@ -62,9 +62,11 @@ yarn test              # Tests
 │   ├── navigation.json        # Menu lateral VTEX Admin
 │   └── routes.json            # Rutas: SurveyList, SurveyForm, SurveyResponses
 ├── react/                     # Componentes React Admin UI
-│   ├── SurveyList.tsx         # (pendiente) Lista de encuestas
-│   ├── SurveyForm.tsx         # (pendiente) Crear/Editar encuesta
-│   └── SurveyResponses.tsx    # (pendiente) Respuestas + Dashboard
+│   ├── types/index.ts         # Interfaces TypeScript (Survey, SurveyResponse, etc.)
+│   ├── mocks/data.ts          # Datos mock para desarrollo (en español)
+│   ├── SurveyList.tsx         # Lista de encuestas con cards y acciones
+│   ├── SurveyForm.tsx         # Crear/Editar encuesta con opciones dinámicas
+│   └── SurveyResponses.tsx    # Dashboard con gráfico + tabla paginada
 ├── store/                     # Widget Storefront (Semana 4)
 │   └── ...
 └── messages/
@@ -156,16 +158,17 @@ yarn test              # Tests
 ### Last Session
 - **Date**: 2026-02-17
 - **Phase**: Semana 3 - Frontend Admin App UI
-- **Status**: Iniciando implementacion de UI
+- **Status**: UI navegable completada con datos mock
 - **Next step**:
-  1. Registrar JSON Schemas en Master Data v2
-  2. Implementar UI Admin App (lista encuestas, formulario crear/editar, vista respuestas, dashboard)
-  3. Implementar navegacion entre pantallas
-  4. Crear mockups funcionales con datos estaticos
+  1. Registrar JSON Schemas en Master Data v2 (pendiente)
+  2. Conectar UI con GraphQL API (reemplazar mocks por queries/mutations reales)
+  3. Testing end-to-end de flujos completos
+  4. Semana 4: Widget storefront para Thank You Page
 
 ### Completed Phases
 - **Semana 1**: Definicion de producto, wireframes, user stories
 - **Semana 2**: Diseno tecnico (entidades MD, JSON Schemas, GraphQL schema, resolvers)
+- **Semana 3**: Frontend Admin App UI (completada)
 
 ### Recent Technical Decisions
 - Dos entidades Master Data: `zpd_surveys`, `zpd_responses`
@@ -178,21 +181,44 @@ yarn test              # Tests
 - MD v2 search limit: 100 docs (usar scroll para mas)
 - Sin agregaciones nativas en MD v2 (calcular en resolver)
 
+### Semana 3 - Implementación Completada
+- **navigation.json**: Fix aplicado - path sin `/app/` (`/admin/zpd-surveys`)
+- **routes.json**: Mantiene path con `/app/` (`/admin/app/zpd-surveys`)
+- **SurveyList.tsx**: Cards con toggle status, edit, view responses, delete + modal confirmación
+- **SurveyForm.tsx**: Modo crear/editar, opciones dinámicas (min 2), validación, allowOther
+- **SurveyResponses.tsx**: Dashboard con gráfico CSS (barras), filtros fecha, tabla paginada
+- **Mocks en español**: 3 encuestas, 12 respuestas, distribución dashboard
+- **Navegación**: withRuntimeContext + runtime.navigate() funcionando entre vistas
+
+### Puntos para Próxima Sesión
+1. **Registrar JSON Schemas en MD v2** antes de conectar GraphQL
+2. **Reemplazar mocks por GraphQL**: useQuery/useMutation de react-apollo
+3. **Manejar RN-01/RN-02**: Al activar encuesta, desactivar la anterior
+4. **Testing**: Validar flujos completos con datos reales
+
 ---
 
-## UI Screens (Semana 3)
+## UI Screens (Semana 3) - COMPLETADO
 
-### Pantallas a implementar:
-1. **Lista de Encuestas (Home)** - Cards con info resumida, toggle estado, acciones
-2. **Crear/Editar Encuesta** - Form con pregunta, opciones dinamicas, checkbox "Otro"
-3. **Ver Respuestas + Dashboard** - Grafico barras + tabla paginada con filtros
+### Pantallas implementadas:
+1. **SurveyList (Home)** - Cards con pregunta, status tag, responseCount, fecha, acciones (toggle, edit, responses, delete), modal confirmación, empty state
+2. **SurveyForm** - Input pregunta, opciones dinámicas (add/remove, min 2), checkbox allowOther, validación, modo crear/editar
+3. **SurveyResponses** - Dashboard con total y gráfico barras CSS, filtros fecha (from/to), tabla paginada, error state
 
-### Componentes VTEX Styleguide sugeridos:
-- `PageHeader`, `PageBlock`
-- `Card`, `Table`, `Pagination`
-- `Input`, `Textarea`, `Button`, `Toggle`, `Checkbox`
-- `Alert`, `Modal` (confirmaciones)
-- Charts (considerar libreria externa o custom)
+### Componentes VTEX Styleguide utilizados:
+- `Layout`, `PageHeader`, `PageBlock`
+- `Table`, `Pagination`, `Tag`
+- `Input`, `Button`, `Checkbox`, `IconDelete`
+- `Alert`, `Modal`, `EmptyState`
+- Gráfico de barras: CSS custom (sin librería externa)
+
+### Rutas configuradas (`admin/routes.json`):
+| Page ID | Path | Componente |
+|---------|------|------------|
+| admin.app.zpd-surveys | /admin/app/zpd-surveys | SurveyList |
+| admin.app.zpd-surveys-new | /admin/app/zpd-surveys/new | SurveyForm |
+| admin.app.zpd-surveys-edit | /admin/app/zpd-surveys/:id/edit | SurveyForm |
+| admin.app.zpd-surveys-responses | /admin/app/zpd-surveys/:id/responses | SurveyResponses |
 
 ---
 
