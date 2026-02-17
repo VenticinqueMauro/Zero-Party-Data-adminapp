@@ -1,0 +1,12 @@
+type OptionCount {
+  option: String!
+  count: Int!
+  percentage: Float!
+}
+
+type SurveyDashboard {
+  surveyId: ID!
+  question: String!
+  totalResponses: Int!
+  distribution: [OptionCount!]!
+}

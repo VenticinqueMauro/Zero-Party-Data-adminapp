@@ -1,0 +1,6 @@
+input SurveyInput {
+  question: String!
+  options: [String!]!
+  isActive: Boolean
+  allowOther: Boolean
+}

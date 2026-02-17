@@ -1,0 +1,7 @@
+input ResponseInput {
+  surveyId: String!
+  selectedOption: String!
+  otherText: String
+  orderId: String!
+  clientEmail: String!
+}

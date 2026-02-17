@@ -1,0 +1,10 @@
+type Survey {
+  id: ID!
+  question: String!
+  options: [String!]!
+  isActive: Boolean!
+  allowOther: Boolean
+  responseCount: Int
+  createdAt: String!
+  updatedAt: String!
+}

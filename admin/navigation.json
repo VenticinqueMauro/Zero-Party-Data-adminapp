@@ -1,0 +1,13 @@
+{
+  "section": "orders",
+  "titleId": "admin/zpd.navigation.title",
+  "subSection": "zpd-surveys",
+  "searchKeyWordsHelpers": "admin/zpd.navigation.search.kws",
+  "subSectionItems": [
+    {
+      "labelId": "admin/zpd.navigation.surveys",
+      "path": "/admin/zpd-surveys",
+      "searchKeyWordsHelpers": "admin/zpd.navigation.surveys.search.kws"
+    }
+  ]
+}

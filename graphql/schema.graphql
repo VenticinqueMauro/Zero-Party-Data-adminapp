@@ -1,0 +1,42 @@
+type Query {
+  """Lista todas las encuestas, ordenadas por fecha de creacion descendente"""
+  getSurveys: [Survey!]!
+
+  """Obtiene una encuesta por su ID"""
+  getSurvey(id: ID!): Survey
+
+  """Obtiene la encuesta activa actualmente (para storefront)"""
+  getActiveSurvey: Survey
+
+  """Lista respuestas de una encuesta con paginacion y filtros"""
+  getResponses(
+    surveyId: String!
+    page: Int
+    pageSize: Int
+    dateFrom: String
+    dateTo: String
+  ): ResponseList!
+
+  """Dashboard con distribucion de respuestas por opcion"""
+  getSurveyDashboard(surveyId: String!): SurveyDashboard!
+
+  """Verifica si un pedido ya respondio una encuesta (RN-06)"""
+  hasOrderResponded(orderId: String!, surveyId: String!): Boolean!
+}
+
+type Mutation {
+  """Crea una nueva encuesta"""
+  createSurvey(input: SurveyInput!): Survey!
+
+  """Actualiza una encuesta existente"""
+  updateSurvey(id: ID!, input: SurveyInput!): Survey!
+
+  """Elimina una encuesta y sus respuestas asociadas"""
+  deleteSurvey(id: ID!): Boolean!
+
+  """Activa/desactiva una encuesta (desactiva automaticamente la anterior)"""
+  toggleSurveyStatus(id: ID!, isActive: Boolean!): Survey!
+
+  """Registra una respuesta desde el storefront"""
+  submitResponse(input: ResponseInput!): SurveyResponse!
+}

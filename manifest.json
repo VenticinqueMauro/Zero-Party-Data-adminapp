@@ -1,0 +1,43 @@
+{
+  "name": "zpd-survey-manager",
+  "vendor": "redcloverqa",
+  "version": "0.1.0",
+  "title": "Zero-Party Data Survey Manager",
+  "description": "Admin App para gestionar encuestas post-compra y capturar Zero-Party Data",
+  "mustUpdateAt": "2025-12-31",
+  "scripts": {
+    "postreleasy": "vtex publish"
+  },
+  "dependencies": {
+    "vtex.styleguide": "9.x"
+  },
+  "builders": {
+    "node": "7.x",
+    "graphql": "1.x",
+    "react": "3.x",
+    "admin": "0.x",
+    "store": "0.x",
+    "messages": "1.x",
+    "docs": "0.x"
+  },
+  "policies": [
+    {
+      "name": "ADMIN_DS"
+    },
+    {
+      "name": "outbound-access",
+      "attrs": {
+        "host": "api.vtex.com",
+        "path": "/dataentities/*"
+      }
+    },
+    {
+      "name": "outbound-access",
+      "attrs": {
+        "host": "redcloverqa.vtexcommercestable.com.br",
+        "path": "/api/dataentities/*"
+      }
+    }
+  ],
+  "$schema": "https://raw.githubusercontent.com/vtex/node-vtex-api/master/gen/manifest.schema"
+}

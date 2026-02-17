@@ -1,0 +1,16 @@
+type SurveyResponse {
+  id: ID!
+  surveyId: String!
+  selectedOption: String!
+  otherText: String
+  orderId: String!
+  clientEmail: String!
+  respondedAt: String!
+}
+
+type ResponseList {
+  data: [SurveyResponse!]!
+  total: Int!
+  page: Int!
+  pageSize: Int!
+}

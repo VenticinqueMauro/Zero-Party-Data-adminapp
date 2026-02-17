@@ -1,0 +1,18 @@
+{
+  "admin.app.zpd-surveys": {
+    "component": "SurveyList",
+    "path": "/admin/app/zpd-surveys"
+  },
+  "admin.app.zpd-surveys-new": {
+    "component": "SurveyForm",
+    "path": "/admin/app/zpd-surveys/new"
+  },
+  "admin.app.zpd-surveys-edit": {
+    "component": "SurveyForm",
+    "path": "/admin/app/zpd-surveys/:id/edit"
+  },
+  "admin.app.zpd-surveys-responses": {
+    "component": "SurveyResponses",
+    "path": "/admin/app/zpd-surveys/:id/responses"
+  }
+}

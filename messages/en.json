@@ -1,0 +1,44 @@
+{
+  "admin/zpd.navigation.title": "Zero-Party Data",
+  "admin/zpd.navigation.surveys": "Surveys",
+  "admin/zpd.navigation.search.kws": "surveys, zero party data, attribution",
+  "admin/zpd.navigation.surveys.search.kws": "surveys, attribution, post-purchase",
+
+  "admin/zpd.surveys.title": "Post-Purchase Surveys",
+  "admin/zpd.surveys.subtitle": "Manage your Zero-Party Data surveys",
+  "admin/zpd.surveys.new": "New Survey",
+  "admin/zpd.surveys.empty": "No surveys created",
+  "admin/zpd.surveys.empty.description": "Create your first survey to start capturing attribution data",
+
+  "admin/zpd.survey.question": "Question",
+  "admin/zpd.survey.question.placeholder": "E.g.: How did you hear about us?",
+  "admin/zpd.survey.options": "Answer options",
+  "admin/zpd.survey.options.add": "Add option",
+  "admin/zpd.survey.options.placeholder": "E.g.: Instagram",
+  "admin/zpd.survey.allowOther": "Include 'Other' field with free text",
+  "admin/zpd.survey.status": "Status",
+  "admin/zpd.survey.status.active": "Active",
+  "admin/zpd.survey.status.inactive": "Inactive",
+  "admin/zpd.survey.responses": "Responses",
+  "admin/zpd.survey.created": "Created",
+
+  "admin/zpd.form.save": "Save",
+  "admin/zpd.form.cancel": "Cancel",
+  "admin/zpd.form.delete": "Delete",
+  "admin/zpd.form.edit": "Edit",
+  "admin/zpd.form.activate": "Activate",
+  "admin/zpd.form.deactivate": "Deactivate",
+  "admin/zpd.form.viewResponses": "View Responses",
+
+  "admin/zpd.responses.title": "Responses",
+  "admin/zpd.responses.email": "Email",
+  "admin/zpd.responses.option": "Option",
+  "admin/zpd.responses.date": "Date",
+  "admin/zpd.responses.orderId": "Order",
+  "admin/zpd.responses.filter.dateFrom": "From",
+  "admin/zpd.responses.filter.dateTo": "To",
+
+  "admin/zpd.dashboard.title": "Dashboard",
+  "admin/zpd.dashboard.total": "Total responses",
+  "admin/zpd.dashboard.distribution": "Distribution"
+}
