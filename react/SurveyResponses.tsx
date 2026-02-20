@@ -206,7 +206,13 @@ const SurveyResponses: FC<Props> = ({ runtime, params }) => {
         }
       >
         <PageBlock variation="full">
-          <div style={{ ...cardStyle, textAlign: 'center' as const, padding: '48px 24px' }}>
+          <div
+            style={{
+              ...cardStyle,
+              textAlign: 'center' as const,
+              padding: '48px 24px',
+            }}
+          >
             <div
               style={{
                 width: '80px',
@@ -220,13 +226,26 @@ const SurveyResponses: FC<Props> = ({ runtime, params }) => {
               }}
             >
               <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
-                <circle cx="12" cy="12" r="10" stroke="#979899" strokeWidth="1.5" />
-                <path d="M8 15C8 15 9.5 17 12 17C14.5 17 16 15 16 15" stroke="#979899" strokeWidth="1.5" strokeLinecap="round" />
+                <circle
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="#979899"
+                  strokeWidth="1.5"
+                />
+                <path
+                  d="M8 15C8 15 9.5 17 12 17C14.5 17 16 15 16 15"
+                  stroke="#979899"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                />
                 <circle cx="9" cy="10" r="1" fill="#979899" />
                 <circle cx="15" cy="10" r="1" fill="#979899" />
               </svg>
             </div>
-            <p style={{ color: '#727273' }}>La encuesta solicitada no fue encontrada.</p>
+            <p style={{ color: '#727273' }}>
+              La encuesta solicitada no fue encontrada.
+            </p>
           </div>
         </PageBlock>
       </Layout>
@@ -250,8 +269,22 @@ const SurveyResponses: FC<Props> = ({ runtime, params }) => {
         variation="full"
       >
         <div style={cardStyle}>
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginBottom: '20px' }}>
-            <span style={{ fontSize: '32px', fontWeight: 700, color: '#3f3f40', lineHeight: 1 }}>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'baseline',
+              gap: '8px',
+              marginBottom: '20px',
+            }}
+          >
+            <span
+              style={{
+                fontSize: '32px',
+                fontWeight: 700,
+                color: '#3f3f40',
+                lineHeight: 1,
+              }}
+            >
               {survey.responseCount}
             </span>
             <span style={{ fontSize: '14px', color: '#727273' }}>
@@ -260,7 +293,13 @@ const SurveyResponses: FC<Props> = ({ runtime, params }) => {
           </div>
 
           <div style={{ paddingTop: '16px', borderTop: '1px solid #e3e4e6' }}>
-            <div style={{ marginBottom: '12px', fontWeight: 600, fontSize: '14px' }}>
+            <div
+              style={{
+                marginBottom: '12px',
+                fontWeight: 600,
+                fontSize: '14px',
+              }}
+            >
               <FormattedMessage id="admin/zpd.dashboard.distribution" />
             </div>
             <BarChart distribution={MOCK_DASHBOARD_DISTRIBUTION} />
@@ -276,7 +315,15 @@ const SurveyResponses: FC<Props> = ({ runtime, params }) => {
         <div style={cardStyle}>
           <div style={{ display: 'flex', gap: '16px', marginBottom: '16px' }}>
             <div style={{ width: '200px' }}>
-              <span style={{ display: 'block', fontSize: '12px', color: '#727273', fontWeight: 600, marginBottom: '8px' }}>
+              <span
+                style={{
+                  display: 'block',
+                  fontSize: '12px',
+                  color: '#727273',
+                  fontWeight: 600,
+                  marginBottom: '8px',
+                }}
+              >
                 <FormattedMessage id="admin/zpd.responses.filter.dateFrom" />
               </span>
               <Input
@@ -289,7 +336,15 @@ const SurveyResponses: FC<Props> = ({ runtime, params }) => {
               />
             </div>
             <div style={{ width: '200px' }}>
-              <span style={{ display: 'block', fontSize: '12px', color: '#727273', fontWeight: 600, marginBottom: '8px' }}>
+              <span
+                style={{
+                  display: 'block',
+                  fontSize: '12px',
+                  color: '#727273',
+                  fontWeight: 600,
+                  marginBottom: '8px',
+                }}
+              >
                 <FormattedMessage id="admin/zpd.responses.filter.dateTo" />
               </span>
               <Input
@@ -314,7 +369,10 @@ const SurveyResponses: FC<Props> = ({ runtime, params }) => {
             <div className="flex justify-center mt4">
               <Pagination
                 currentItemFrom={(currentPage - 1) * PAGE_SIZE + 1}
-                currentItemTo={Math.min(currentPage * PAGE_SIZE, filteredResponses.length)}
+                currentItemTo={Math.min(
+                  currentPage * PAGE_SIZE,
+                  filteredResponses.length
+                )}
                 totalItems={filteredResponses.length}
                 onNextClick={() => handlePageChange(currentPage + 1)}
                 onPrevClick={() => handlePageChange(currentPage - 1)}

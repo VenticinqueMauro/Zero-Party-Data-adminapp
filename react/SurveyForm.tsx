@@ -137,7 +137,10 @@ const SurveyForm: FC<Props> = ({ runtime, params }) => {
     const canDelete = options.length > MIN_OPTIONS
 
     return (
-      <div key={index} style={{ display: 'flex', alignItems: 'center', marginBottom: '12px' }}>
+      <div
+        key={index}
+        style={{ display: 'flex', alignItems: 'center', marginBottom: '12px' }}
+      >
         <div style={numberBadge}>{index + 1}</div>
         <div style={{ flex: '1 1 auto', marginRight: '12px' }}>
           <Input
@@ -155,7 +158,13 @@ const SurveyForm: FC<Props> = ({ runtime, params }) => {
             onClick={() => handleRemoveOption(index)}
           >
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M12 4L4 12M4 4L12 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+              <path
+                d="M12 4L4 12M4 4L12 12"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
             </svg>
           </button>
         )}
@@ -191,7 +200,14 @@ const SurveyForm: FC<Props> = ({ runtime, params }) => {
         <div style={cardStyle}>
           {/* Question */}
           <div style={{ marginBottom: '24px' }}>
-            <span style={{ display: 'block', fontWeight: 600, marginBottom: '12px', fontSize: '14px' }}>
+            <span
+              style={{
+                display: 'block',
+                fontWeight: 600,
+                marginBottom: '12px',
+                fontSize: '14px',
+              }}
+            >
               <FormattedMessage id="admin/zpd.survey.question" />{' '}
               <span style={{ color: '#ff4c4c' }}>*</span>
             </span>
@@ -205,16 +221,35 @@ const SurveyForm: FC<Props> = ({ runtime, params }) => {
 
           {/* Options */}
           <div style={{ marginBottom: '24px' }}>
-            <span style={{ display: 'block', fontWeight: 600, marginBottom: '12px', fontSize: '14px' }}>
+            <span
+              style={{
+                display: 'block',
+                fontWeight: 600,
+                marginBottom: '12px',
+                fontSize: '14px',
+              }}
+            >
               <FormattedMessage id="admin/zpd.survey.options" />{' '}
-              <span style={{ color: '#727273', fontWeight: 400, fontSize: '12px' }}>(mín. {MIN_OPTIONS})</span>
+              <span
+                style={{ color: '#727273', fontWeight: 400, fontSize: '12px' }}
+              >
+                (mín. {MIN_OPTIONS})
+              </span>
             </span>
             {options.map((option, index) => renderOptionInput(option, index))}
             <button type="button" style={addBtnStyle} onClick={handleAddOption}>
               <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-                <path d="M8 3.33334V12.6667M3.33333 8.00001H12.6667" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                <path
+                  d="M8 3.33334V12.6667M3.33333 8.00001H12.6667"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
               </svg>
-              <span><FormattedMessage id="admin/zpd.survey.options.add" /></span>
+              <span>
+                <FormattedMessage id="admin/zpd.survey.options.add" />
+              </span>
             </button>
           </div>
 
