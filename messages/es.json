@@ -35,5 +35,7 @@
   "admin/zpd.responses.filter.dateTo": "Hasta",
   "admin/zpd.dashboard.title": "Dashboard",
   "admin/zpd.dashboard.total": "Total de respuestas",
-  "admin/zpd.dashboard.distribution": "Distribucion"
+  "admin/zpd.dashboard.distribution": "Distribucion",
+  "admin-example.hello-world": "Hola, Mundo!",
+  "admin-example.details": "Detalles"
 }

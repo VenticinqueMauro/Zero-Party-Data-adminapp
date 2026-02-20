@@ -1,4 +1,4 @@
-import React, { FC, useState, useEffect } from 'react'
+import React, { FC, useState, useEffect, CSSProperties } from 'react'
 import { FormattedMessage } from 'react-intl'
 import {
   Layout,
@@ -7,7 +7,6 @@ import {
   Input,
   Checkbox,
   Button,
-  IconDelete,
   Alert,
 } from 'vtex.styleguide'
 import { withRuntimeContext } from 'vtex.render-runtime'
@@ -18,6 +17,54 @@ import { findSurveyById } from './mocks/data'
 type Props = RuntimeProps & RouteParams
 
 const MIN_OPTIONS = 2
+
+const cardStyle: CSSProperties = {
+  border: '1px solid #e3e4e6',
+  borderRadius: '4px',
+  padding: '24px',
+  backgroundColor: '#ffffff',
+}
+
+const numberBadge: CSSProperties = {
+  width: '24px',
+  minWidth: '24px',
+  height: '24px',
+  borderRadius: '50%',
+  backgroundColor: '#f2f4f5',
+  fontSize: '12px',
+  fontWeight: 600,
+  color: '#727273',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  marginRight: '12px',
+}
+
+const removeBtn: CSSProperties = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  border: 'none',
+  background: 'transparent',
+  cursor: 'pointer',
+  color: '#979899',
+  padding: '6px',
+  borderRadius: '4px',
+}
+
+const addBtnStyle: CSSProperties = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: '6px',
+  fontSize: '13px',
+  fontWeight: 600,
+  color: '#134cd8',
+  border: 'none',
+  background: 'transparent',
+  cursor: 'pointer',
+  padding: '6px 0',
+  marginTop: '8px',
+}
 
 const SurveyForm: FC<Props> = ({ runtime, params }) => {
   const [question, setQuestion] = useState('')
@@ -30,10 +77,8 @@ const SurveyForm: FC<Props> = ({ runtime, params }) => {
 
   useEffect(() => {
     if (!isEditMode || !surveyId) return
-
     const survey = findSurveyById(surveyId)
     if (!survey) return
-
     setQuestion(survey.question)
     setOptions(survey.options)
     setAllowOther(survey.allowOther)
@@ -72,16 +117,14 @@ const SurveyForm: FC<Props> = ({ runtime, params }) => {
 
   const validateForm = (): boolean => {
     if (!question.trim()) {
-      setError('Question is required')
+      setError('La pregunta es obligatoria')
       return false
     }
-
     const validOptions = options.filter((opt) => opt.trim() !== '')
     if (validOptions.length < MIN_OPTIONS) {
-      setError(`At least ${MIN_OPTIONS} options are required`)
+      setError(`Se requieren al menos ${MIN_OPTIONS} opciones de respuesta`)
       return false
     }
-
     return true
   }
 
@@ -94,10 +137,11 @@ const SurveyForm: FC<Props> = ({ runtime, params }) => {
     const canDelete = options.length > MIN_OPTIONS
 
     return (
-      <div key={index} className="flex items-center mb3">
-        <div className="flex-auto mr3">
+      <div key={index} style={{ display: 'flex', alignItems: 'center', marginBottom: '12px' }}>
+        <div style={numberBadge}>{index + 1}</div>
+        <div style={{ flex: '1 1 auto', marginRight: '12px' }}>
           <Input
-            placeholder={`Option ${index + 1}`}
+            placeholder={`Opción ${index + 1}`}
             value={option}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
               handleOptionChange(index, e.target.value)
@@ -105,13 +149,15 @@ const SurveyForm: FC<Props> = ({ runtime, params }) => {
           />
         </div>
         {canDelete && (
-          <Button
-            variation="danger-tertiary"
-            size="small"
+          <button
+            type="button"
+            style={removeBtn}
             onClick={() => handleRemoveOption(index)}
           >
-            <IconDelete />
-          </Button>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M12 4L4 12M4 4L12 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
         )}
       </div>
     )
@@ -142,39 +188,50 @@ const SurveyForm: FC<Props> = ({ runtime, params }) => {
           </div>
         )}
 
-        <div className="mb5">
-          <span className="db fw6 mb2">
-            <FormattedMessage id="admin/zpd.survey.question" />
-          </span>
-          <Input
-            placeholder="E.g.: How did you hear about us?"
-            value={question}
-            onChange={handleQuestionChange}
-            size="large"
-          />
+        <div style={cardStyle}>
+          {/* Question */}
+          <div style={{ marginBottom: '24px' }}>
+            <span style={{ display: 'block', fontWeight: 600, marginBottom: '12px', fontSize: '14px' }}>
+              <FormattedMessage id="admin/zpd.survey.question" />{' '}
+              <span style={{ color: '#ff4c4c' }}>*</span>
+            </span>
+            <Input
+              placeholder="Ej: ¿Cómo nos conociste?"
+              value={question}
+              onChange={handleQuestionChange}
+              size="large"
+            />
+          </div>
+
+          {/* Options */}
+          <div style={{ marginBottom: '24px' }}>
+            <span style={{ display: 'block', fontWeight: 600, marginBottom: '12px', fontSize: '14px' }}>
+              <FormattedMessage id="admin/zpd.survey.options" />{' '}
+              <span style={{ color: '#727273', fontWeight: 400, fontSize: '12px' }}>(mín. {MIN_OPTIONS})</span>
+            </span>
+            {options.map((option, index) => renderOptionInput(option, index))}
+            <button type="button" style={addBtnStyle} onClick={handleAddOption}>
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                <path d="M8 3.33334V12.6667M3.33333 8.00001H12.6667" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              <span><FormattedMessage id="admin/zpd.survey.options.add" /></span>
+            </button>
+          </div>
+
+          {/* Allow Other */}
+          <div style={{ paddingTop: '16px', borderTop: '1px solid #e3e4e6' }}>
+            <Checkbox
+              id="allowOther"
+              name="allowOther"
+              checked={allowOther}
+              onChange={handleAllowOtherChange}
+              label={<FormattedMessage id="admin/zpd.survey.allowOther" />}
+            />
+          </div>
         </div>
 
-        <div className="mb5">
-          <span className="db fw6 mb3">
-            <FormattedMessage id="admin/zpd.survey.options" />
-          </span>
-          {options.map((option, index) => renderOptionInput(option, index))}
-          <Button variation="tertiary" size="small" onClick={handleAddOption}>
-            <FormattedMessage id="admin/zpd.survey.options.add" />
-          </Button>
-        </div>
-
-        <div className="mb5">
-          <Checkbox
-            id="allowOther"
-            name="allowOther"
-            checked={allowOther}
-            onChange={handleAllowOtherChange}
-            label={<FormattedMessage id="admin/zpd.survey.allowOther" />}
-          />
-        </div>
-
-        <div className="flex mt6">
+        {/* Save / Cancel buttons */}
+        <div className="flex mt5">
           <div className="mr3">
             <Button variation="primary" onClick={handleSave}>
               <FormattedMessage id="admin/zpd.form.save" />
