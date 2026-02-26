@@ -9,7 +9,8 @@
     "postreleasy": "vtex publish"
   },
   "dependencies": {
-    "vtex.styleguide": "9.x"
+    "vtex.styleguide": "9.x",
+    "vtex.order-placed": "2.x"
   },
   "builders": {
     "node": "7.x",

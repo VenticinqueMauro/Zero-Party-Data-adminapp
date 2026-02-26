@@ -1,0 +1,12 @@
+query getSurveys {
+  getSurveys {
+    id
+    question
+    options
+    isActive
+    allowOther
+    responseCount
+    createdAt
+    updatedAt
+  }
+}

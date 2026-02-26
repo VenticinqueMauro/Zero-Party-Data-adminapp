@@ -1,0 +1,7 @@
+mutation toggleSurveyStatus($id: ID!, $isActive: Boolean!) {
+  toggleSurveyStatus(id: $id, isActive: $isActive) {
+    id
+    isActive
+    updatedAt
+  }
+}

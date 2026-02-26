@@ -1,0 +1,3 @@
+query hasOrderResponded($orderId: String!, $surveyId: String!) {
+  hasOrderResponded(orderId: $orderId, surveyId: $surveyId)
+}

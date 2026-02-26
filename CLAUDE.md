@@ -156,19 +156,20 @@ yarn test              # Tests
 {This section updates between sessions. Claude should read this at startup.}
 
 ### Last Session
-- **Date**: 2026-02-17
-- **Phase**: Semana 3 - Frontend Admin App UI
-- **Status**: UI navegable completada con datos mock
+- **Date**: 2026-02-26
+- **Phase**: Semana 4 - Completada y funcionando en producción
+- **Status**: App linkeada y funcionando en workspace `zpdsurvey`. CRUD completo operativo. Skeletons implementados.
 - **Next step**:
-  1. Registrar JSON Schemas en Master Data v2 (pendiente)
-  2. Conectar UI con GraphQL API (reemplazar mocks por queries/mutations reales)
-  3. Testing end-to-end de flujos completos
-  4. Semana 4: Widget storefront para Thank You Page
+  1. Integrar widget en store theme de redcloverqa (repo separado)
+  2. Testing end-to-end con compra real (widget → respuesta → dashboard)
 
 ### Completed Phases
 - **Semana 1**: Definicion de producto, wireframes, user stories
 - **Semana 2**: Diseno tecnico (entidades MD, JSON Schemas, GraphQL schema, resolvers)
-- **Semana 3**: Frontend Admin App UI (completada)
+- **Semana 3**: Frontend Admin App UI (completada con mocks)
+- **Semana 4 Fase 1**: Conexion GraphQL real (mocks eliminados, cascade delete, script MD)
+- **Semana 4 Fase 2**: Widget storefront (SurveyWidget.tsx, store/interfaces.json)
+- **Semana 4 Fase 3**: Bugfixes, UX improvements, Skeleton loading states
 
 ### Recent Technical Decisions
 - Dos entidades Master Data: `zpd_surveys`, `zpd_responses`
@@ -176,25 +177,45 @@ yarn test              # Tests
 - Campo `responseCount` desnormalizado para performance
 - Scroll pagination para >100 respuestas en dashboard
 - Extensibilidad preparada para `zpd_rewards` post-MVP
+- Apollo Client: `import { useQuery, useMutation } from 'react-apollo'` (no instalar @apollo/client)
+- Archivos .graphql en `react/graphql/` (importados directamente en componentes)
 
 ### Known Issues
 - MD v2 search limit: 100 docs (usar scroll para mas)
 - Sin agregaciones nativas en MD v2 (calcular en resolver)
+- Schemas MD v2 registrados en redcloverqa (zpd_surveys + zpd_responses — survey-schema-v1 / response-schema-v1)
 
-### Semana 3 - Implementación Completada
-- **navigation.json**: Fix aplicado - path sin `/app/` (`/admin/zpd-surveys`)
-- **routes.json**: Mantiene path con `/app/` (`/admin/app/zpd-surveys`)
-- **SurveyList.tsx**: Cards con toggle status, edit, view responses, delete + modal confirmación
-- **SurveyForm.tsx**: Modo crear/editar, opciones dinámicas (min 2), validación, allowOther
-- **SurveyResponses.tsx**: Dashboard con gráfico CSS (barras), filtros fecha, tabla paginada
-- **Mocks en español**: 3 encuestas, 12 respuestas, distribución dashboard
-- **Navegación**: withRuntimeContext + runtime.navigate() funcionando entre vistas
+### Semana 4 Fase 1 - Implementado
+- `scripts/register-md-schemas.sh`: script con curl commands para registrar schemas MD
+- `react/graphql/*.graphql` (8 archivos): getSurveys, getSurvey, createSurvey, updateSurvey, deleteSurvey, toggleSurveyStatus, getResponses, getSurveyDashboard
+- **SurveyList.tsx**: useQuery(GET_SURVEYS) + useMutation toggle/delete + refetch + Spinner/Alert
+- **SurveyForm.tsx**: useQuery(GET_SURVEY) modo edicion + useMutation create/update + Spinner
+- **SurveyResponses.tsx**: useQuery dashboard + useQuery respuestas paginadas server-side
+- **survey.ts resolver**: cascade delete implementado con scroll (elimina respuestas antes de encuesta)
+
+### Semana 4 Fase 3 - Bugfixes y UX (COMPLETADO)
+- `store/interfaces.json`: corregido nombre de interfaz (`survey-widget`, sin prefijo de app)
+- `react/SurveyForm.tsx`: agregado `refetchQueries: [GET_SURVEYS]` + `awaitRefetchQueries: true` en create/update
+- `react/SurveyForm.tsx`: agregado `fetchPolicy: 'network-only'` en GET_SURVEY (form edición)
+- `react/Skeleton.tsx`: componente nuevo con shimmer animation — SurveyListSkeleton, SurveyFormSkeleton, DashboardSkeleton, ResponsesTableSkeleton
+- TypeScript fixes: tipado explícito de callbacks `onError`, `filter` y `map` en SurveyList/SurveyForm
+- MD v2 schemas registrados en redcloverqa via `scripts/register-md-schemas.sh`
+
+### Semana 4 Fase 2 - Widget Storefront (COMPLETADO)
+- `store/interfaces.json`: bloque `zpd-survey-manager.survey-widget` registrado
+- `manifest.json`: agregada dependencia `vtex.order-placed: 3.x`
+- `react/graphql/getActiveSurvey.graphql`, `hasOrderResponded.graphql`, `submitResponse.graphql`: creados
+- `react/SurveyWidget.tsx`: componente completo con:
+  - `useOrder()` de `vtex.order-placed/OrderContext` para obtener orderId y clientEmail
+  - `useQuery(GET_ACTIVE_SURVEY)` - oculta el widget si no hay encuesta activa
+  - `useQuery(HAS_ORDER_RESPONDED)` - oculta si el pedido ya respondió (RN-06)
+  - `useMutation(SUBMIT_RESPONSE)` - envía la respuesta con 1 click
+  - Estado "gracias" post-respuesta
+  - Campo "Otro" con input de texto libre y botón Enviar
 
 ### Puntos para Próxima Sesión
-1. **Registrar JSON Schemas en MD v2** antes de conectar GraphQL
-2. **Reemplazar mocks por GraphQL**: useQuery/useMutation de react-apollo
-3. **Manejar RN-01/RN-02**: Al activar encuesta, desactivar la anterior
-4. **Testing**: Validar flujos completos con datos reales
+1. **Agregar bloque al store theme** de redcloverqa: agregar `redcloverqa.zpd-survey-manager:survey-widget` al template `order-placed`
+2. **Testing end-to-end**: crear encuesta → activar → comprar → ver widget → responder → ver en dashboard
 
 ---
 

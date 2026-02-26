@@ -1,0 +1,9 @@
+query getActiveSurvey {
+  getActiveSurvey {
+    id
+    question
+    options
+    allowOther
+    responseCount
+  }
+}

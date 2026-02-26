@@ -1,0 +1,12 @@
+query getSurveyDashboard($surveyId: String!) {
+  getSurveyDashboard(surveyId: $surveyId) {
+    surveyId
+    question
+    totalResponses
+    distribution {
+      option
+      count
+      percentage
+    }
+  }
+}

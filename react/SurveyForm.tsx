@@ -10,9 +10,14 @@ import {
   Alert,
 } from 'vtex.styleguide'
 import { withRuntimeContext } from 'vtex.render-runtime'
+import { useQuery, useMutation } from 'react-apollo'
 
-import { RuntimeProps, RouteParams } from './types'
-import { findSurveyById } from './mocks/data'
+import { Survey, RuntimeProps, RouteParams } from './types'
+import { SurveyFormSkeleton } from './Skeleton'
+import GET_SURVEY from './graphql/getSurvey.graphql'
+import GET_SURVEYS from './graphql/getSurveys.graphql'
+import CREATE_SURVEY from './graphql/createSurvey.graphql'
+import UPDATE_SURVEY from './graphql/updateSurvey.graphql'
 
 type Props = RuntimeProps & RouteParams
 
@@ -75,18 +80,41 @@ const SurveyForm: FC<Props> = ({ runtime, params }) => {
   const isEditMode = Boolean(params?.id)
   const surveyId = params?.id
 
+  const { data: surveyData, loading: surveyLoading } = useQuery<{
+    getSurvey: Survey
+  }>(GET_SURVEY, {
+    variables: { id: surveyId },
+    skip: !isEditMode || !surveyId,
+    fetchPolicy: 'network-only',
+  })
+
   useEffect(() => {
-    if (!isEditMode || !surveyId) return
-    const survey = findSurveyById(surveyId)
-    if (!survey) return
+    if (!surveyData?.getSurvey) return
+    const survey = surveyData.getSurvey
     setQuestion(survey.question)
     setOptions(survey.options)
     setAllowOther(survey.allowOther)
-  }, [isEditMode, surveyId])
+  }, [surveyData])
 
   const handleBack = () => {
     runtime.navigate({ page: 'admin.app.zpd-surveys' })
   }
+
+  const [createSurvey, { loading: creating }] = useMutation(CREATE_SURVEY, {
+    refetchQueries: [{ query: GET_SURVEYS }],
+    awaitRefetchQueries: true,
+    onCompleted: () => handleBack(),
+    onError: (err: { message: string }) => setError(err.message),
+  })
+
+  const [updateSurvey, { loading: updating }] = useMutation(UPDATE_SURVEY, {
+    refetchQueries: [{ query: GET_SURVEYS }],
+    awaitRefetchQueries: true,
+    onCompleted: () => handleBack(),
+    onError: (err: { message: string }) => setError(err.message),
+  })
+
+  const isSaving = creating || updating
 
   const handleQuestionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setQuestion(e.target.value)
@@ -130,7 +158,18 @@ const SurveyForm: FC<Props> = ({ runtime, params }) => {
 
   const handleSave = () => {
     if (!validateForm()) return
-    handleBack()
+
+    const input = {
+      question: question.trim(),
+      options: options.filter((opt) => opt.trim() !== ''),
+      allowOther,
+    }
+
+    if (isEditMode && surveyId) {
+      updateSurvey({ variables: { id: surveyId, input } })
+    } else {
+      createSurvey({ variables: { input } })
+    }
   }
 
   const renderOptionInput = (option: string, index: number) => {
@@ -177,6 +216,24 @@ const SurveyForm: FC<Props> = ({ runtime, params }) => {
   ) : (
     <FormattedMessage id="admin/zpd.surveys.new" />
   )
+
+  if (isEditMode && surveyLoading) {
+    return (
+      <Layout
+        pageHeader={
+          <PageHeader
+            title={pageTitle}
+            linkLabel={<FormattedMessage id="admin/zpd.form.cancel" />}
+            onLinkClick={handleBack}
+          />
+        }
+      >
+        <PageBlock variation="full">
+          <SurveyFormSkeleton />
+        </PageBlock>
+      </Layout>
+    )
+  }
 
   return (
     <Layout
@@ -268,11 +325,15 @@ const SurveyForm: FC<Props> = ({ runtime, params }) => {
         {/* Save / Cancel buttons */}
         <div className="flex mt5">
           <div className="mr3">
-            <Button variation="primary" onClick={handleSave}>
+            <Button
+              variation="primary"
+              onClick={handleSave}
+              isLoading={isSaving}
+            >
               <FormattedMessage id="admin/zpd.form.save" />
             </Button>
           </div>
-          <Button variation="tertiary" onClick={handleBack}>
+          <Button variation="tertiary" onClick={handleBack} disabled={isSaving}>
             <FormattedMessage id="admin/zpd.form.cancel" />
           </Button>
         </div>

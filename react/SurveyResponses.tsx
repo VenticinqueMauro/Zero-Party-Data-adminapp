@@ -1,4 +1,4 @@
-import React, { FC, useState, useMemo, CSSProperties } from 'react'
+import React, { FC, useState, CSSProperties } from 'react'
 import { FormattedMessage } from 'react-intl'
 import {
   Layout,
@@ -8,15 +8,15 @@ import {
   Pagination,
   Input,
   Tag,
+  Alert,
 } from 'vtex.styleguide'
 import { withRuntimeContext } from 'vtex.render-runtime'
+import { useQuery } from 'react-apollo'
 
 import { RuntimeProps, RouteParams, SurveyResponse, OptionCount } from './types'
-import {
-  findSurveyById,
-  getResponsesBySurveyId,
-  MOCK_DASHBOARD_DISTRIBUTION,
-} from './mocks/data'
+import { DashboardSkeleton, ResponsesTableSkeleton } from './Skeleton'
+import GET_SURVEY_DASHBOARD from './graphql/getSurveyDashboard.graphql'
+import GET_RESPONSES from './graphql/getResponses.graphql'
 
 type Props = RuntimeProps & RouteParams
 
@@ -85,6 +85,7 @@ const formatDate = (dateString: string): string => {
 }
 
 const BarChart: FC<{ distribution: OptionCount[] }> = ({ distribution }) => {
+  if (!distribution.length) return null
   const maxCount = Math.max(...distribution.map((d) => d.count))
 
   return (
@@ -100,7 +101,7 @@ const BarChart: FC<{ distribution: OptionCount[] }> = ({ distribution }) => {
                 height: '100%',
                 borderRadius: '4px',
                 background: 'linear-gradient(90deg, #134cd8 0%, #3d6de5 100%)',
-                width: `${(item.count / maxCount) * 100}%`,
+                width: `${maxCount > 0 ? (item.count / maxCount) * 100 : 0}%`,
                 minWidth: item.count > 0 ? '4px' : '0',
                 transition: 'width 0.5s ease-in-out',
               }}
@@ -114,35 +115,54 @@ const BarChart: FC<{ distribution: OptionCount[] }> = ({ distribution }) => {
   )
 }
 
+interface DashboardData {
+  getSurveyDashboard: {
+    surveyId: string
+    question: string
+    totalResponses: number
+    distribution: OptionCount[]
+  }
+}
+
+interface ResponsesData {
+  getResponses: {
+    data: SurveyResponse[]
+    total: number
+    page: number
+    pageSize: number
+  }
+}
+
 const SurveyResponses: FC<Props> = ({ runtime, params }) => {
   const surveyId = params?.id ?? ''
-  const survey = findSurveyById(surveyId)
-  const allResponses = getResponsesBySurveyId(surveyId)
 
   const [dateFrom, setDateFrom] = useState('')
   const [dateTo, setDateTo] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
 
-  const filteredResponses = useMemo(() => {
-    let filtered = [...allResponses]
-    if (dateFrom) {
-      const from = new Date(dateFrom)
-      filtered = filtered.filter((r) => new Date(r.respondedAt) >= from)
-    }
-    if (dateTo) {
-      const to = new Date(dateTo)
-      to.setHours(23, 59, 59, 999)
-      filtered = filtered.filter((r) => new Date(r.respondedAt) <= to)
-    }
-    return filtered
-  }, [allResponses, dateFrom, dateTo])
+  const {
+    data: dashboardData,
+    loading: dashboardLoading,
+    error: dashboardError,
+  } = useQuery<DashboardData>(GET_SURVEY_DASHBOARD, {
+    variables: { surveyId },
+    skip: !surveyId,
+  })
 
-  const paginatedResponses = useMemo(() => {
-    const start = (currentPage - 1) * PAGE_SIZE
-    return filteredResponses.slice(start, start + PAGE_SIZE)
-  }, [filteredResponses, currentPage])
-
-  const totalPages = Math.ceil(filteredResponses.length / PAGE_SIZE)
+  const {
+    data: responsesData,
+    loading: responsesLoading,
+    error: responsesError,
+  } = useQuery<ResponsesData>(GET_RESPONSES, {
+    variables: {
+      surveyId,
+      page: currentPage,
+      pageSize: PAGE_SIZE,
+      dateFrom: dateFrom || undefined,
+      dateTo: dateTo || undefined,
+    },
+    skip: !surveyId,
+  })
 
   const handleBack = () => {
     runtime.navigate({ page: 'admin.app.zpd-surveys' })
@@ -151,6 +171,12 @@ const SurveyResponses: FC<Props> = ({ runtime, params }) => {
   const handlePageChange = (page: number) => {
     setCurrentPage(page)
   }
+
+  const dashboard = dashboardData?.getSurveyDashboard
+  const responseList = responsesData?.getResponses
+  const responses = responseList?.data ?? []
+  const totalResponses = responseList?.total ?? 0
+  const totalPages = Math.ceil(totalResponses / PAGE_SIZE)
 
   const tableSchema = {
     properties: {
@@ -194,7 +220,7 @@ const SurveyResponses: FC<Props> = ({ runtime, params }) => {
     },
   }
 
-  if (!survey) {
+  if (!surveyId) {
     return (
       <Layout
         pageHeader={
@@ -206,47 +232,9 @@ const SurveyResponses: FC<Props> = ({ runtime, params }) => {
         }
       >
         <PageBlock variation="full">
-          <div
-            style={{
-              ...cardStyle,
-              textAlign: 'center' as const,
-              padding: '48px 24px',
-            }}
-          >
-            <div
-              style={{
-                width: '80px',
-                height: '80px',
-                margin: '0 auto 16px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                backgroundColor: '#f2f4f5',
-                borderRadius: '50%',
-              }}
-            >
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
-                <circle
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="#979899"
-                  strokeWidth="1.5"
-                />
-                <path
-                  d="M8 15C8 15 9.5 17 12 17C14.5 17 16 15 16 15"
-                  stroke="#979899"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                />
-                <circle cx="9" cy="10" r="1" fill="#979899" />
-                <circle cx="15" cy="10" r="1" fill="#979899" />
-              </svg>
-            </div>
-            <p style={{ color: '#727273' }}>
-              La encuesta solicitada no fue encontrada.
-            </p>
-          </div>
+          <Alert type="error">
+            No se encontró el ID de la encuesta. Volvé a la lista.
+          </Alert>
         </PageBlock>
       </Layout>
     )
@@ -257,7 +245,7 @@ const SurveyResponses: FC<Props> = ({ runtime, params }) => {
       pageHeader={
         <PageHeader
           title={<FormattedMessage id="admin/zpd.responses.title" />}
-          subtitle={survey.question}
+          subtitle={dashboard?.question ?? ''}
           linkLabel={<FormattedMessage id="admin/zpd.form.cancel" />}
           onLinkClick={handleBack}
         />
@@ -269,41 +257,61 @@ const SurveyResponses: FC<Props> = ({ runtime, params }) => {
         variation="full"
       >
         <div style={cardStyle}>
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'baseline',
-              gap: '8px',
-              marginBottom: '20px',
-            }}
-          >
-            <span
-              style={{
-                fontSize: '32px',
-                fontWeight: 700,
-                color: '#3f3f40',
-                lineHeight: 1,
-              }}
-            >
-              {survey.responseCount}
-            </span>
-            <span style={{ fontSize: '14px', color: '#727273' }}>
-              <FormattedMessage id="admin/zpd.dashboard.total" />
-            </span>
-          </div>
+          {dashboardError && (
+            <Alert type="error">
+              Error al cargar el dashboard. Intentá recargar la página.
+            </Alert>
+          )}
 
-          <div style={{ paddingTop: '16px', borderTop: '1px solid #e3e4e6' }}>
-            <div
-              style={{
-                marginBottom: '12px',
-                fontWeight: 600,
-                fontSize: '14px',
-              }}
-            >
-              <FormattedMessage id="admin/zpd.dashboard.distribution" />
-            </div>
-            <BarChart distribution={MOCK_DASHBOARD_DISTRIBUTION} />
-          </div>
+          {dashboardLoading && <DashboardSkeleton />}
+
+          {!dashboardLoading && dashboard && (
+            <>
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'baseline',
+                  gap: '8px',
+                  marginBottom: '20px',
+                }}
+              >
+                <span
+                  style={{
+                    fontSize: '32px',
+                    fontWeight: 700,
+                    color: '#3f3f40',
+                    lineHeight: 1,
+                  }}
+                >
+                  {dashboard.totalResponses}
+                </span>
+                <span style={{ fontSize: '14px', color: '#727273' }}>
+                  <FormattedMessage id="admin/zpd.dashboard.total" />
+                </span>
+              </div>
+
+              <div
+                style={{ paddingTop: '16px', borderTop: '1px solid #e3e4e6' }}
+              >
+                <div
+                  style={{
+                    marginBottom: '12px',
+                    fontWeight: 600,
+                    fontSize: '14px',
+                  }}
+                >
+                  <FormattedMessage id="admin/zpd.dashboard.distribution" />
+                </div>
+                {dashboard.distribution.length > 0 ? (
+                  <BarChart distribution={dashboard.distribution} />
+                ) : (
+                  <p style={{ color: '#979899', fontSize: '14px' }}>
+                    Todavía no hay respuestas para mostrar.
+                  </p>
+                )}
+              </div>
+            </>
+          )}
         </div>
       </PageBlock>
 
@@ -313,6 +321,12 @@ const SurveyResponses: FC<Props> = ({ runtime, params }) => {
         variation="full"
       >
         <div style={cardStyle}>
+          {responsesError && (
+            <div className="mb4">
+              <Alert type="error">Error al cargar las respuestas.</Alert>
+            </div>
+          )}
+
           <div style={{ display: 'flex', gap: '16px', marginBottom: '16px' }}>
             <div style={{ width: '200px' }}>
               <span
@@ -358,26 +372,32 @@ const SurveyResponses: FC<Props> = ({ runtime, params }) => {
             </div>
           </div>
 
-          <Table
-            fullWidth
-            items={paginatedResponses}
-            schema={tableSchema}
-            emptyStateLabel="No se encontraron respuestas"
-          />
-
-          {totalPages > 1 && (
-            <div className="flex justify-center mt4">
-              <Pagination
-                currentItemFrom={(currentPage - 1) * PAGE_SIZE + 1}
-                currentItemTo={Math.min(
-                  currentPage * PAGE_SIZE,
-                  filteredResponses.length
-                )}
-                totalItems={filteredResponses.length}
-                onNextClick={() => handlePageChange(currentPage + 1)}
-                onPrevClick={() => handlePageChange(currentPage - 1)}
+          {responsesLoading ? (
+            <ResponsesTableSkeleton />
+          ) : (
+            <>
+              <Table
+                fullWidth
+                items={responses}
+                schema={tableSchema}
+                emptyStateLabel="No se encontraron respuestas"
               />
-            </div>
+
+              {totalPages > 1 && (
+                <div className="flex justify-center mt4">
+                  <Pagination
+                    currentItemFrom={(currentPage - 1) * PAGE_SIZE + 1}
+                    currentItemTo={Math.min(
+                      currentPage * PAGE_SIZE,
+                      totalResponses
+                    )}
+                    totalItems={totalResponses}
+                    onNextClick={() => handlePageChange(currentPage + 1)}
+                    onPrevClick={() => handlePageChange(currentPage - 1)}
+                  />
+                </div>
+              )}
+            </>
           )}
         </div>
       </PageBlock>

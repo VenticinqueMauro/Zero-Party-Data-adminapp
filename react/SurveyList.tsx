@@ -9,11 +9,16 @@ import {
   EmptyState,
   Toggle,
   Input,
+  Alert,
 } from 'vtex.styleguide'
 import { withRuntimeContext } from 'vtex.render-runtime'
+import { useQuery, useMutation } from 'react-apollo'
 
 import { Survey, RuntimeProps } from './types'
-import { MOCK_SURVEYS } from './mocks/data'
+import { SurveyListSkeleton } from './Skeleton'
+import GET_SURVEYS from './graphql/getSurveys.graphql'
+import TOGGLE_SURVEY_STATUS from './graphql/toggleSurveyStatus.graphql'
+import DELETE_SURVEY from './graphql/deleteSurvey.graphql'
 
 type Props = RuntimeProps
 
@@ -119,10 +124,33 @@ const SearchIcon = () => (
 )
 
 const SurveyList: FC<Props> = ({ runtime }) => {
-  const [surveys, setSurveys] = useState<Survey[]>(MOCK_SURVEYS)
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const [surveyToDelete, setSurveyToDelete] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
+  const [mutationError, setMutationError] = useState<string | null>(null)
+
+  const { data, loading, error, refetch } = useQuery<{ getSurveys: Survey[] }>(
+    GET_SURVEYS
+  )
+
+  const [toggleStatus] = useMutation(TOGGLE_SURVEY_STATUS, {
+    onCompleted: () => refetch(),
+    onError: (err: { message: string }) => setMutationError(err.message),
+  })
+
+  const [deleteSurvey] = useMutation(DELETE_SURVEY, {
+    onCompleted: () => {
+      setIsDeleteModalOpen(false)
+      setSurveyToDelete(null)
+      refetch()
+    },
+    onError: (err: { message: string }) => {
+      setIsDeleteModalOpen(false)
+      setMutationError(err.message)
+    },
+  })
+
+  const surveys: Survey[] = data?.getSurveys ?? []
 
   const filteredSurveys = useMemo(() => {
     if (!searchTerm.trim()) return surveys
@@ -134,7 +162,7 @@ const SurveyList: FC<Props> = ({ runtime }) => {
         .replace(/[¿?]/g, '')
         .trim()
     const term = normalize(searchTerm)
-    return surveys.filter((s) => normalize(s.question).includes(term))
+    return surveys.filter((s: Survey) => normalize(s.question).includes(term))
   }, [surveys, searchTerm])
 
   const handleNewSurvey = () => {
@@ -152,18 +180,9 @@ const SurveyList: FC<Props> = ({ runtime }) => {
     })
   }
 
-  const handleToggleStatus = (id: string) => {
-    setSurveys((prev) =>
-      prev.map((survey) => {
-        if (survey.id === id) {
-          return { ...survey, isActive: !survey.isActive }
-        }
-        if (survey.isActive && !surveys.find((sv) => sv.id === id)?.isActive) {
-          return { ...survey, isActive: false }
-        }
-        return survey
-      })
-    )
+  const handleToggleStatus = (survey: Survey) => {
+    setMutationError(null)
+    toggleStatus({ variables: { id: survey.id, isActive: !survey.isActive } })
   }
 
   const handleDeleteClick = (id: string) => {
@@ -173,10 +192,9 @@ const SurveyList: FC<Props> = ({ runtime }) => {
 
   const handleDeleteConfirm = () => {
     if (surveyToDelete) {
-      setSurveys((prev) => prev.filter((sv) => sv.id !== surveyToDelete))
+      setMutationError(null)
+      deleteSurvey({ variables: { id: surveyToDelete } })
     }
-    setIsDeleteModalOpen(false)
-    setSurveyToDelete(null)
   }
 
   const handleDeleteCancel = () => {
@@ -186,7 +204,6 @@ const SurveyList: FC<Props> = ({ runtime }) => {
 
   const renderCard = (survey: Survey) => {
     const optionsSummary = `${survey.options.length} opciones`
-    const allowOtherBadge = survey.allowOther
 
     return (
       <div style={card}>
@@ -195,7 +212,9 @@ const SurveyList: FC<Props> = ({ runtime }) => {
           <p style={cardTitle}>{survey.question}</p>
           <div style={cardMeta}>
             <span style={badge}>{optionsSummary}</span>
-            {allowOtherBadge && <span style={badge}>Permite "Otro"</span>}
+            {survey.allowOther && (
+              <span style={badge}>Permite &quot;Otro&quot;</span>
+            )}
             <span style={badge}>
               <strong>{survey.responseCount}</strong> respuestas
             </span>
@@ -205,7 +224,7 @@ const SurveyList: FC<Props> = ({ runtime }) => {
             <Toggle
               semantic
               checked={survey.isActive}
-              onChange={() => handleToggleStatus(survey.id)}
+              onChange={() => handleToggleStatus(survey)}
             />
             <span
               style={{
@@ -329,9 +348,25 @@ const SurveyList: FC<Props> = ({ runtime }) => {
       }
     >
       <PageBlock variation="full">
-        {surveys.length === 0 ? (
-          renderEmptyState()
-        ) : (
+        {mutationError && (
+          <div className="mb4">
+            <Alert type="error" onClose={() => setMutationError(null)}>
+              {mutationError}
+            </Alert>
+          </div>
+        )}
+
+        {loading && <SurveyListSkeleton />}
+
+        {error && !loading && (
+          <Alert type="error">
+            Error al cargar las encuestas. Por favor, recargá la página.
+          </Alert>
+        )}
+
+        {!loading && !error && surveys.length === 0 && renderEmptyState()}
+
+        {!loading && !error && surveys.length > 0 && (
           <div
             style={{
               display: 'flex',
@@ -366,10 +401,11 @@ const SurveyList: FC<Props> = ({ runtime }) => {
                   fontSize: '14px',
                 }}
               >
-                No se encontraron encuestas que coincidan con "{searchTerm}"
+                No se encontraron encuestas que coincidan con &quot;{searchTerm}
+                &quot;
               </div>
             ) : (
-              filteredSurveys.map((survey) => (
+              filteredSurveys.map((survey: Survey) => (
                 <div key={survey.id}>{renderCard(survey)}</div>
               ))
             )}
@@ -395,7 +431,7 @@ const SurveyList: FC<Props> = ({ runtime }) => {
         }
       >
         <p>
-          ¿Estás seguro de que quieres eliminar esta encuesta? Se eliminarán
+          ¿Estás seguro de que querés eliminar esta encuesta? Se eliminarán
           también todas las respuestas asociadas.
         </p>
       </Modal>

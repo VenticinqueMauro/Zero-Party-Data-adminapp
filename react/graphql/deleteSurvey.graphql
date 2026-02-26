@@ -1,0 +1,3 @@
+mutation deleteSurvey($id: ID!) {
+  deleteSurvey(id: $id)
+}

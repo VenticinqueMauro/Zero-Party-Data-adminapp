@@ -2,7 +2,9 @@ import { UserInputError } from '@vtex/api'
 
 import {
   DATA_ENTITY_SURVEYS,
+  DATA_ENTITY_RESPONSES,
   SCHEMA_SURVEYS,
+  SCHEMA_RESPONSES,
   SURVEY_FIELDS,
 } from '../utils/constants'
 
@@ -94,13 +96,15 @@ export const createSurvey = async (
       pagination: { page: 1, pageSize: 10 },
     })
 
-    for (const survey of activeSurveys) {
-      await masterdata.updatePartialDocument({
-        dataEntity: DATA_ENTITY_SURVEYS,
-        id: survey.id,
-        fields: { isActive: false, updatedAt: now },
-      })
-    }
+    await Promise.all(
+      activeSurveys.map((survey) =>
+        masterdata.updatePartialDocument({
+          dataEntity: DATA_ENTITY_SURVEYS,
+          id: survey.id,
+          fields: { isActive: false, updatedAt: now },
+        })
+      )
+    )
   }
 
   // Crear documento
@@ -158,15 +162,17 @@ export const updateSurvey = async (
       pagination: { page: 1, pageSize: 10 },
     })
 
-    for (const survey of activeSurveys) {
-      if (survey.id !== id) {
-        await masterdata.updatePartialDocument({
-          dataEntity: DATA_ENTITY_SURVEYS,
-          id: survey.id,
-          fields: { isActive: false, updatedAt: now },
-        })
-      }
-    }
+    await Promise.all(
+      activeSurveys
+        .filter((survey) => survey.id !== id)
+        .map((survey) =>
+          masterdata.updatePartialDocument({
+            dataEntity: DATA_ENTITY_SURVEYS,
+            id: survey.id,
+            fields: { isActive: false, updatedAt: now },
+          })
+        )
+    )
   }
 
   await masterdata.updatePartialDocument({
@@ -206,8 +212,33 @@ export const deleteSurvey = async (
     )
   }
 
-  // Eliminar respuestas asociadas
-  // TODO: Implementar scroll para eliminar todas las respuestas
+  // Eliminar respuestas asociadas con paginacion recursiva
+  const deleteResponsesBatch = async (page: number): Promise<void> => {
+    const responses = await masterdata.searchDocuments<{ id: string }>({
+      dataEntity: DATA_ENTITY_RESPONSES,
+      schema: SCHEMA_RESPONSES,
+      fields: ['id'],
+      where: `surveyId=${id}`,
+      pagination: { page, pageSize: 100 },
+    })
+
+    if (responses.length === 0) return
+
+    await Promise.all(
+      responses.map((resp) =>
+        masterdata.deleteDocument({
+          dataEntity: DATA_ENTITY_RESPONSES,
+          id: resp.id,
+        })
+      )
+    )
+
+    if (responses.length === 100) {
+      await deleteResponsesBatch(page + 1)
+    }
+  }
+
+  await deleteResponsesBatch(1)
 
   // Eliminar la encuesta
   await masterdata.deleteDocument({
@@ -243,15 +274,17 @@ export const toggleSurveyStatus = async (
       pagination: { page: 1, pageSize: 10 },
     })
 
-    for (const s of activeSurveys) {
-      if (s.id !== id) {
-        await masterdata.updatePartialDocument({
-          dataEntity: DATA_ENTITY_SURVEYS,
-          id: s.id,
-          fields: { isActive: false, updatedAt: now },
-        })
-      }
-    }
+    await Promise.all(
+      activeSurveys
+        .filter((s) => s.id !== id)
+        .map((s) =>
+          masterdata.updatePartialDocument({
+            dataEntity: DATA_ENTITY_SURVEYS,
+            id: s.id,
+            fields: { isActive: false, updatedAt: now },
+          })
+        )
+    )
   }
 
   await masterdata.updatePartialDocument({

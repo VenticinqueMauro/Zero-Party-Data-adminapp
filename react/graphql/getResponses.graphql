@@ -1,0 +1,28 @@
+query getResponses(
+  $surveyId: String!
+  $page: Int
+  $pageSize: Int
+  $dateFrom: String
+  $dateTo: String
+) {
+  getResponses(
+    surveyId: $surveyId
+    page: $page
+    pageSize: $pageSize
+    dateFrom: $dateFrom
+    dateTo: $dateTo
+  ) {
+    data {
+      id
+      surveyId
+      selectedOption
+      otherText
+      orderId
+      clientEmail
+      respondedAt
+    }
+    total
+    page
+    pageSize
+  }
+}

@@ -1,0 +1,7 @@
+mutation submitResponse($input: ResponseInput!) {
+  submitResponse(input: $input) {
+    id
+    selectedOption
+    respondedAt
+  }
+}

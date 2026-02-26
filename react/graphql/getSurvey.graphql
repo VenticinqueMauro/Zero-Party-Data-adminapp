@@ -1,0 +1,12 @@
+query getSurvey($id: ID!) {
+  getSurvey(id: $id) {
+    id
+    question
+    options
+    isActive
+    allowOther
+    responseCount
+    createdAt
+    updatedAt
+  }
+}

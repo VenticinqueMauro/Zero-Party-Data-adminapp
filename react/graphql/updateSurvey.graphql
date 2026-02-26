@@ -1,0 +1,12 @@
+mutation updateSurvey($id: ID!, $input: SurveyInput!) {
+  updateSurvey(id: $id, input: $input) {
+    id
+    question
+    options
+    isActive
+    allowOther
+    responseCount
+    createdAt
+    updatedAt
+  }
+}
