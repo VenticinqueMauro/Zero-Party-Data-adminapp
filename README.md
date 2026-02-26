@@ -1,4 +1,4 @@
-# <p align="center"><img src="./assets/logo.png" width="120" /><br>Zero-Party Data Survey Manager</p>
+# <p align="center"><img src="./assets/banner.png" width="100%" alt="Zero-Party Data Survey Manager Banner" /></p>
 
 > VTEX IO Admin App para capturar Zero-Party Data mediante encuestas post-compra en la Thank You Page.
 
